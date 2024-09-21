@@ -6,7 +6,7 @@ pipeline {
         VERSION = "${env.BUILD_ID}"
         IMAGE_REPO = "indalarajesh"
         GIT_REPO_NAME = "CI-with-Jenkins"
-        GIT_USER_NAME = "indalarajesh"
+        GIT_USER_NAME = "INDALARAJESH"
     }
 
     tools { 
