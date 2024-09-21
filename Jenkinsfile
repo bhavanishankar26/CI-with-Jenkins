@@ -11,39 +11,33 @@ pipeline {
     }
 
     tools { 
-        maven 'maven-3.8.6' 
+        maven 'maven-3.8.6' // Ensure maven-3.8.6 is properly configured in Jenkins
     }
+
     stages {
         stage('Checkout git') {
             steps {
-              git branch: 'main', url:'https://github.com/indalarajesh/CI-with-Jenkins.git'
+                git branch: 'main', url: 'https://github.com/indalarajesh/CI-with-Jenkins.git'
             }
         }
         
         stage ('Build & JUnit Test') {
             steps {
-                sh 'mvn clean install' 
+                sh 'mvn clean install'
             }
         }
-
         
-        stage('Docker  Build') {
+        stage('Docker Build') {
             steps {
-               
-      	         sh 'docker build -t ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT} .'
-                
+                sh 'docker build -t ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT} .'
             }
         }
-
         
-        stage ('Docker Image Push') {
+        stage('Docker Image Push') {
             steps {
-                    
-                    sh "docker login -u ${username} -p ${password} "
-                    sh 'docker push ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}'
-                    sh 'docker rmi  ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}'
-                    
-                }
+                sh "docker login -u ${username} -p ${password}"
+                sh 'docker push ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}'
+                sh 'docker rmi ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}'
             }
         }
         
@@ -51,15 +45,12 @@ pipeline {
             steps {
                 script {
                     if (fileExists('CI-with-Jenkins')) {
-
                         echo 'Cloned repo already exists - Pulling latest changes'
-
                         dir("CI-with-Jenkins") {
-                          sh 'git pull'
+                            sh 'git pull'
                         }
-
                     } else {
-                        echo 'Repo does not exists - Cloning the repo'
+                        echo 'Repo does not exist - Cloning the repo'
                         sh 'git clone -b feature https://github.com/indalarajesh/CI-with-Jenkins.git'
                     }
                 }
@@ -79,7 +70,7 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("CI-with-Jenkins/yamls") {
-                        sh "git config --global user.email 'rajeshindala143@gmail.com'"
+                        sh "git config --global user.email 'rajeshindala1997@gmail.com'"
                         sh 'git remote set-url origin https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}'
                         sh 'git checkout feature'
                         sh 'git add deployment.yaml'
@@ -94,20 +85,12 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("CI-with-Jenkins/yamls") {
-                        sh '''
-                            set +u
-                            unset GITHUB_TOKEN
-                            gh auth login --with-token < token.txt
-                            
-                        '''
-                        sh 'git branch'
+                        sh 'gh auth login --with-token < token.txt'
                         sh 'git checkout feature'
                         sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
                     }
                 }    
             }
-        } 
+        }
     }
-
-
-
+}
