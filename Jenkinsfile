@@ -60,7 +60,7 @@ pipeline {
                         }
                     } else {
                         echo 'Repo does not exist - Cloning the repo'
-                        sh 'git clone -b feature https://github.com/INDALARAJESH/CI-with-Jenkins.git'
+                        sh 'git clone -b main https://github.com/INDALARAJESH/CI-with-Jenkins.git'
                     }
                 }
             }
@@ -81,7 +81,7 @@ pipeline {
                     dir("CI-with-Jenkins/yamls") {
                         sh "git config --global user.email 'rajeshindala1997@gmail.com'"
                         sh 'git remote set-url origin https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}'
-                        sh 'git checkout feature'
+                        sh 'git checkout -b feature'
                         sh 'git add deployment.yaml'
                         sh "git commit -am 'Updated image version for Build- ${VERSION}-${GIT_COMMIT}'"
                         sh 'git push origin feature'
