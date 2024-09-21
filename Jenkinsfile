@@ -80,8 +80,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("CI-with-Jenkins/yamls") {
                         sh "git config --global user.email 'rajeshindala1997@gmail.com'"
-                        sh 'git remote set-url origin https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}'
-                        echo ${GITHUB_TOKEN}| git push https://<USERNAME>:<TOKEN>@github.com/INDALARAJESH/CI-with-Jenkins.git feature
+                        sh "git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git feature"
                         sh 'git checkout feature'
                         sh 'git add deployment.yaml'
                         sh "git commit -am 'Updated image version for Build- ${VERSION}-${GIT_COMMIT}'"
