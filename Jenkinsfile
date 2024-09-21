@@ -60,7 +60,7 @@ pipeline {
                         }
                     } else {
                         echo 'Repo does not exist - Cloning the repo'
-                        sh 'git clone -b main https://github.com/INDALARAJESH/CI-with-Jenkins.git'
+                        sh 'git clone -b feature https://github.com/INDALARAJESH/CI-with-Jenkins.git'
                     }
                 }
             }
