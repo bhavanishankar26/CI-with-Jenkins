@@ -4,7 +4,6 @@ pipeline {
     environment {
         NAME = "spring-app"
         VERSION = "${env.BUILD_ID}"
-        GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
         IMAGE_REPO = "indalarajesh"
         GIT_REPO_NAME = "CI-with-Jenkins"
         GIT_USER_NAME = "indalarajesh"
@@ -18,6 +17,14 @@ pipeline {
         stage('Checkout git') {
             steps {
                 git branch: 'main', url: 'https://github.com/indalarajesh/CI-with-Jenkins.git'
+            }
+        }
+
+        stage('Get Git Commit Hash') {
+            steps {
+                script {
+                    env.GIT_COMMIT = sh(returnStdout: true, script: 'git rev-parse HEAD').trim()
+                }
             }
         }
         
@@ -35,9 +42,11 @@ pipeline {
         
         stage('Docker Image Push') {
             steps {
-                sh "docker login -u ${username} -p ${password}"
-                sh 'docker push ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}'
-                sh 'docker rmi ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}'
+                withCredentials([usernamePassword(credentialsId: 'docker-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                    sh 'docker push ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}'
+                    sh 'docker rmi ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}'
+                }
             }
         }
         
@@ -85,9 +94,9 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("CI-with-Jenkins/yamls") {
-                        sh 'gh auth login --with-token < token.txt'
+                        sh 'echo "${GITHUB_TOKEN}" | gh auth login --with-token'
                         sh 'git checkout feature'
-                        sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
+                        sh "gh pr create -t 'Image tag updated' -b 'Check and merge it' -B main"
                     }
                 }    
             }
