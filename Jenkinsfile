@@ -16,7 +16,7 @@ pipeline {
     stages {
         stage('Checkout git') {
             steps {
-                git branch: 'main', url: 'https://github.com/indalarajesh/DevOps_MasterPiece-CI-with-Jenkins.git'
+                git branch: 'main', url: 'https://github.com/indalarajesh/CI-with-Jenkins.git'
             }
         }
 
@@ -53,14 +53,16 @@ pipeline {
         stage('Clone/Pull k8s deployment Repo') {
             steps {
                 script {
-                    if (fileExists('CI-with-Jenkins')) {
+                    if (fileExists('DevOps_MasterPiece-CD-with-argocd')) {
                         echo 'Cloned repo already exists - Pulling latest changes'
-                        dir("CI-with-Jenkins") {
+
+                        dir("DevOps_MasterPiece-CD-with-argocd") {
                             sh 'git pull'
                         }
+
                     } else {
                         echo 'Repo does not exist - Cloning the repo'
-                        sh 'git clone -b feature https://github.com/INDALARAJESH/DevOps_MasterPiece-CD-with-argocd.git'
+                        sh 'git clone -b feature https://github.com/indalarajesh/DevOps_MasterPiece-CD-with-argocd.git'
                     }
                 }
             }
@@ -86,7 +88,7 @@ pipeline {
                         sh "git commit -am 'Updated image version for Build- ${VERSION}-${GIT_COMMIT}'"
                         sh 'git push origin feature'
                     }
-                }    
+                }
             }
         }
         
@@ -98,7 +100,7 @@ pipeline {
                         sh 'git checkout feature'
                         sh "gh pr create -t 'Image tag updated' -b 'Check and merge it' -B main"
                     }
-                }    
+                }
             }
         }
     }
