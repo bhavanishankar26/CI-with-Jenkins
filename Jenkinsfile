@@ -7,9 +7,8 @@ pipeline {
         IMAGE_REPO = "indalarajesh"
         GIT_REPO_NAME = "DevOps_MasterPiece-CD-with-argocd"
         GIT_USER_NAME = "INDALARAJESH"
-        KUBE_CONFIG = "/path/to/kubeconfig" // Ensure the path to your kubeconfig file is correct
-        AWS_REGION = "us-west-2" // Set your AWS region
-        EKS_CLUSTER_NAME = "your-cluster-name" // Set your EKS cluster name
+        AWS_REGION = "ap-east-1" // Set your AWS region
+        EKS_CLUSTER_NAME = "terraform-eks" // Set your EKS cluster name
     }
 
     tools { 
