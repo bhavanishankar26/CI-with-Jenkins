@@ -10,12 +10,13 @@ pipeline {
     }
 
     tools { 
-            maven 'maven-3.8.6' 
-        }
-        stages {
-            stage('Checkout git') {
-                steps {
-              git branch: 'main', url:'https://github.com/indalarajesh/DevOps_MasterPiece-CI-with-Jenkins.git'
+        maven 'maven-3.8.6' 
+    }
+    
+    stages {
+        stage('Checkout git') {
+            steps {
+                git branch: 'main', url: 'https://github.com/indalarajesh/DevOps_MasterPiece-CI-with-Jenkins.git'
             }
         }
 
@@ -27,7 +28,7 @@ pipeline {
             }
         }
         
-        stage ('Build & JUnit Test') {
+        stage('Build & JUnit Test') {
             steps {
                 sh 'mvn clean install'
             }
@@ -79,7 +80,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("CI-with-Jenkins/yamls") {
                         sh "git config --global user.email 'rajeshindala1997@gmail.com'"
-                        sh "git push https://x-access-token:${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git feature"
+                        sh "git config --global user.name 'INDALARAJESH'"
                         sh 'git checkout feature'
                         sh 'git add deployment.yaml'
                         sh "git commit -am 'Updated image version for Build- ${VERSION}-${GIT_COMMIT}'"
@@ -101,3 +102,4 @@ pipeline {
             }
         }
     }
+}
