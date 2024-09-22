@@ -94,26 +94,27 @@ pipeline {
         }
         
         stage('Raise PR') {
-            steps {
-                withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
-                    dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
-                        sh '''
-                            unset GITHUB_TOKEN
-                            echo "${GITHUB_TOKEN}" | gh auth login --with-token
-                        '''
-                        sh 'git checkout feature'
-                        script {
-                            def prExists = sh(script: "gh pr view --json url --jq '.url' --state open", returnStdout: true).trim()
-                            if (!prExists) {
-                                sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
-                            } else {
-                                echo "A pull request already exists: ${prExists}"
-                            }
-                        }
+    steps {
+        withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
+            dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
+                sh '''
+                    unset GITHUB_TOKEN
+                    echo "${GITHUB_TOKEN}" | gh auth login --with-token
+                '''
+                sh 'git checkout feature'
+                script {
+                    def prExists = sh(script: "gh pr list --state open --head ${GIT_USER_NAME}:feature --json url --jq '.url'", returnStdout: true).trim()
+                    if (!prExists) {
+                        sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
+                    } else {
+                        echo "A pull request already exists: ${prExists}"
                     }
                 }
             }
         }
+    }
+}
+
 
         stage('Configure AWS CLI') {
             steps {
