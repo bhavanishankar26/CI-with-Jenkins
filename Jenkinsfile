@@ -83,6 +83,7 @@ pipeline {
                     dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
                         sh "git config --global user.email 'rajeshindala1997@gmail.com'"
                         sh "git config --global user.name 'INDALARAJESH'"
+                        sh 'git remote set-url origin https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}'
                         sh 'git checkout feature'
                         sh 'git add deployment.yaml'
                         sh "git commit -am 'Updated image version for Build- ${VERSION}-${GIT_COMMIT}'"
