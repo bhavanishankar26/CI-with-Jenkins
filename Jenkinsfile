@@ -7,8 +7,7 @@ pipeline {
         IMAGE_REPO = "indalarajesh"
         GIT_REPO_NAME = "DevOps_MasterPiece-CD-with-argocd"
         GIT_USER_NAME = "INDALARAJESH"
-        AWS_REGION = "ap-south-1" // Set your AWS region
-        EKS_CLUSTER_NAME = "terraform-eks" // Set your EKS cluster name
+        KUBE_CONFIG = "/path/to/kubeconfig" // Ensure the path to your kubeconfig file is correct
     }
 
     tools { 
@@ -45,7 +44,7 @@ pipeline {
         stage('Docker Image Push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
+                    sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
                     sh 'docker push ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}'
                     sh 'docker rmi ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}'
                 }
@@ -82,11 +81,11 @@ pipeline {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
                         sh "git config --global user.email 'rajeshindala1997@gmail.com'"
-                        sh "git config --global user.name '${GIT_USER_NAME}'"
+                        sh "git config --global user.name 'INDALARAJESH'"
                         sh 'git remote set-url origin https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}'
                         sh 'git checkout feature'
                         sh 'git add deployment.yaml'
-                        sh "git commit -m 'Updated image version for Build- ${VERSION}-${GIT_COMMIT}'"
+                        sh "git commit -am 'Updated image version for Build- ${VERSION}-${GIT_COMMIT}'"
                         sh 'git push origin feature'
                     }
                 }
@@ -97,34 +96,13 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
+                        // Pass the GITHUB_TOKEN directly to gh auth login
                         sh '''
                             unset GITHUB_TOKEN
                             echo "${GITHUB_TOKEN}" | gh auth login --with-token
                         '''
                         sh 'git checkout feature'
-                        script {
-                            def prExists = sh(script: "gh pr list --head ${GIT_USER_NAME}:feature --json url --jq '.url'", returnStdout: true).trim()
-                            if (!prExists) {
-                                sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
-                            } else {
-                                echo "A pull request already exists: ${prExists}"
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        stage('Configure AWS CLI') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'aws-credentials-id', variable: 'AWS_ACCESS_KEY_ID'), 
-                                     string(credentialsId: 'aws-secret-key-id', variable: 'AWS_SECRET_ACCESS_KEY')]) {
-                        sh '''
-                            aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
-                            aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
-                            aws configure set default.region ${AWS_REGION}
-                        '''
+                        sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
                     }
                 }
             }
@@ -134,7 +112,7 @@ pipeline {
             steps {
                 script {
                     // Configure kubectl to use your EKS cluster
-                    sh "aws eks --region ${AWS_REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME}"
+                    sh 'aws eks --region YOUR_REGION update-kubeconfig --name YOUR_CLUSTER_NAME'
 
                     // Deploy to EKS using kubectl
                     sh 'kubectl apply -f DevOps_MasterPiece-CD-with-argocd/yamls/deployment.yaml'
