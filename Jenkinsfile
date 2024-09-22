@@ -70,7 +70,7 @@ pipeline {
         
         stage('Update deployment Manifest') {
             steps {
-                dir("CI-with-Jenkins/yamls") {
+                dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
                     sh 'sed -i "s#indalarajesh.*#${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}#g" deployment.yaml'
                     sh 'cat deployment.yaml'
                 }
