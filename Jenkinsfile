@@ -45,7 +45,7 @@ pipeline {
         stage('Docker Image Push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'docker-credentials-id', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                    sh "echo ${DOCKER_PASSWORD} | docker login -u ${DOCKER_USERNAME} --password-stdin"
                     sh 'docker push ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}'
                     sh 'docker rmi ${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}'
                 }
@@ -86,7 +86,7 @@ pipeline {
                         sh 'git remote set-url origin https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}'
                         sh 'git checkout feature'
                         sh 'git add deployment.yaml'
-                        sh "git commit -m 'Updated image version for Build- ${VERSION}-${GIT_COMMIT}'" // Changed to -m for single commit message
+                        sh "git commit -m 'Updated image version for Build- ${VERSION}-${GIT_COMMIT}'"
                         sh 'git push origin feature'
                     }
                 }
@@ -94,27 +94,26 @@ pipeline {
         }
         
         stage('Raise PR') {
-    steps {
-        withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
-            dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
-                sh '''
-                    unset GITHUB_TOKEN
-                    echo "${GITHUB_TOKEN}" | gh auth login --with-token
-                '''
-                sh 'git checkout feature'
-                script {
-                    def prExists = sh(script: "gh pr list --state open --head ${GIT_USER_NAME}:feature --json url --jq '.url'", returnStdout: true).trim()
-                    if (!prExists) {
-                        sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
-                    } else {
-                        echo "A pull request already exists: ${prExists}"
+            steps {
+                withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
+                    dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
+                        sh '''
+                            unset GITHUB_TOKEN
+                            echo "${GITHUB_TOKEN}" | gh auth login --with-token
+                        '''
+                        sh 'git checkout feature'
+                        script {
+                            def prExists = sh(script: "gh pr list --head ${GIT_USER_NAME}:feature --json url --jq '.url'", returnStdout: true).trim()
+                            if (!prExists) {
+                                sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
+                            } else {
+                                echo "A pull request already exists: ${prExists}"
+                            }
+                        }
                     }
                 }
             }
         }
-    }
-}
-
 
         stage('Configure AWS CLI') {
             steps {
