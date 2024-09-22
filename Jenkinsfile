@@ -7,6 +7,8 @@ pipeline {
         IMAGE_REPO = "indalarajesh"
         GIT_REPO_NAME = "DevOps_MasterPiece-CD-with-argocd"
         GIT_USER_NAME = "INDALARAJESH"
+        AWS_REGION = "YOUR_AWS_REGION" // Set your AWS region
+        EKS_CLUSTER_NAME = "YOUR_CLUSTER_NAME" // Set your EKS cluster name
     }
 
     tools { 
@@ -95,7 +97,6 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
-                        // Pass the GITHUB_TOKEN directly to gh auth login
                         sh '''
                             unset GITHUB_TOKEN
                             echo "${GITHUB_TOKEN}" | gh auth login --with-token
@@ -103,6 +104,50 @@ pipeline {
                         sh 'git checkout feature'
                         sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
                     }
+                }
+            }
+        }
+
+        stage('Install AWS CLI') {
+            steps {
+                script {
+                    // Install AWS CLI
+                    sh '''
+                        if ! command -v aws &> /dev/null; then
+                            echo "AWS CLI not found. Installing..."
+                            sudo apt-get update
+                            sudo apt-get install -y awscli
+                        else
+                            echo "AWS CLI is already installed."
+                        fi
+                    '''
+                }
+            }
+        }
+
+        stage('Configure AWS CLI') {
+            steps {
+                script {
+                    withCredentials([string(credentialsId: 'aws-credentials-id', variable: 'AWS_ACCESS_KEY_ID'), 
+                                     string(credentialsId: 'aws-secret-key-id', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                        sh '''
+                            aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
+                            aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
+                            aws configure set default.region ${AWS_REGION}
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Deploy to EKS') {
+            steps {
+                script {
+                    // Configure kubectl to use your EKS cluster
+                    sh "aws eks --region ${AWS_REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME}"
+
+                    // Deploy to EKS using kubectl
+                    sh 'kubectl apply -f DevOps_MasterPiece-CD-with-argocd/yamls/deployment.yaml'
                 }
             }
         }
