@@ -137,5 +137,17 @@ pipeline {
                 }
             }
         }
+
+        stage('Check LoadBalancer DNS') {
+            steps {
+                script {
+                    // Get the LoadBalancer service details
+                    def serviceInfo = sh(script: "kubectl get services spring-boot-service -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'", returnStdout: true).trim()
+                    
+                    // Print the LoadBalancer DNS
+                    echo "LoadBalancer DNS: ${serviceInfo}"
+                }
+            }
+        }
     }
 }
