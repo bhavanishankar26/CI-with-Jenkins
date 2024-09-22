@@ -97,6 +97,7 @@ pipeline {
                     dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
                         // Pass the GITHUB_TOKEN directly to gh auth login
                         sh '''
+                            unset GITHUB_TOKEN
                             echo "${GITHUB_TOKEN}" | gh auth login --with-token
                         '''
                         sh 'git checkout feature'
