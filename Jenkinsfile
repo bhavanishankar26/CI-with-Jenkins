@@ -82,11 +82,11 @@ pipeline {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
                         sh "git config --global user.email 'rajeshindala1997@gmail.com'"
-                        sh "git config --global user.name 'INDALARAJESH'"
+                        sh "git config --global user.name '${GIT_USER_NAME}'"
                         sh 'git remote set-url origin https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}'
                         sh 'git checkout feature'
                         sh 'git add deployment.yaml'
-                        sh "git commit -am 'Updated image version for Build- ${VERSION}-${GIT_COMMIT}'"
+                        sh "git commit -m 'Updated image version for Build- ${VERSION}-${GIT_COMMIT}'" // Changed to -m for single commit message
                         sh 'git push origin feature'
                     }
                 }
@@ -102,7 +102,14 @@ pipeline {
                             echo "${GITHUB_TOKEN}" | gh auth login --with-token
                         '''
                         sh 'git checkout feature'
-                        sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
+                        script {
+                            def prExists = sh(script: "gh pr view --json url --jq '.url' --state open", returnStdout: true).trim()
+                            if (!prExists) {
+                                sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
+                            } else {
+                                echo "A pull request already exists: ${prExists}"
+                            }
+                        }
                     }
                 }
             }
