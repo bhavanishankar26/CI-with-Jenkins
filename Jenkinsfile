@@ -14,6 +14,16 @@ pipeline {
     }
 
     stages {
+        stage('Install Docker') {
+            steps {
+                sh '''
+                sudo apt update -y
+                sudo apt install docker.io -y
+                sudo chmod 666 /var/run/docker.sock
+                '''
+            }
+        }
+
         stage('Checkout git') {
             steps {
                 git branch: 'main', url: 'https://github.com/indalarajesh/CI-with-Jenkins.git'
@@ -96,10 +106,4 @@ pipeline {
                     dir("CI-with-Jenkins/yamls") {
                         sh 'echo "${GITHUB_TOKEN}" | gh auth login --with-token'
                         sh 'git checkout feature'
-                        sh "gh pr create -t 'Image tag updated' -b 'Check and merge it' -B main"
-                    }
-                }    
-            }
-        }
-    }
-}
+                        sh "gh pr create -t 'Image tag
