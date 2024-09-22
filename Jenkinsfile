@@ -95,8 +95,9 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
+                        // Pass the GITHUB_TOKEN directly to gh auth login
                         sh '''
-                            echo $GITHUB_TOKEN | gh auth login --with-token
+                            echo "${GITHUB_TOKEN}" | gh auth login --with-token
                         '''
                         sh 'git checkout feature'
                         sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
