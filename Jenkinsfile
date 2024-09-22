@@ -80,7 +80,7 @@ pipeline {
         stage('Commit & Push changes to feature branch') {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
-                    dir("CI-with-Jenkins/yamls") {
+                    dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
                         sh "git config --global user.email 'rajeshindala1997@gmail.com'"
                         sh "git config --global user.name 'INDALARAJESH'"
                         sh 'git checkout feature'
@@ -95,7 +95,7 @@ pipeline {
         stage('Raise PR') {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
-                    dir("CI-with-Jenkins/yamls") {
+                    dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
                         sh 'echo "${GITHUB_TOKEN}" | gh auth login --with-token'
                         sh 'git checkout feature'
                         sh "gh pr create -t 'Image tag updated' -b 'Check and merge it' -B main"
