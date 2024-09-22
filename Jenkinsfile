@@ -7,8 +7,8 @@ pipeline {
         IMAGE_REPO = "indalarajesh"
         GIT_REPO_NAME = "DevOps_MasterPiece-CD-with-argocd"
         GIT_USER_NAME = "INDALARAJESH"
-        AWS_REGION = "YOUR_AWS_REGION" // Set your AWS region
-        EKS_CLUSTER_NAME = "YOUR_CLUSTER_NAME" // Set your EKS cluster name
+        AWS_REGION = "ap-south-1" // Set your AWS region
+        EKS_CLUSTER_NAME = "terraform-eks" // Set your EKS cluster name
     }
 
     tools { 
