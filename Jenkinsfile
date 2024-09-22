@@ -10,12 +10,12 @@ pipeline {
     }
 
     tools { 
-        maven 'maven-3.8.6' // Ensure maven-3.8.6 is properly configured in Jenkins
-    }
-
-        stage('Checkout git') {
-            steps {
-                git branch: 'main', url: 'https://github.com/indalarajesh/CI-with-Jenkins.git'
+            maven 'maven-3.8.6' 
+        }
+        stages {
+            stage('Checkout git') {
+                steps {
+              git branch: 'main', url:'https://github.com/indalarajesh/DevOps_MasterPiece-CI-with-Jenkins.git'
             }
         }
 
