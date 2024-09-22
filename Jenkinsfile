@@ -96,16 +96,13 @@ pipeline {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
                         sh '''
-                            set +u
-                            unset GITHUB_TOKEN
-                            gh auth login --with-token <<< $GITHUB_TOKEN
+                            echo $GITHUB_TOKEN | gh auth login --with-token
                         '''
-                        sh 'git branch'
                         sh 'git checkout feature'
                         sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
                     }
                 }
             }
-        } 
+        }
     }
 }
