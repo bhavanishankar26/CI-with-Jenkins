@@ -98,7 +98,7 @@ pipeline {
                         sh '''
                             set +u
                             unset GITHUB_TOKEN
-                            gh auth login --with-token < token.txt
+                            gh auth login --with-token <<< $GITHUB_TOKEN
                         '''
                         sh 'git branch'
                         sh 'git checkout feature'
