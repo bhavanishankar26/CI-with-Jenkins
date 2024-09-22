@@ -17,9 +17,9 @@ pipeline {
         stage('Install Docker') {
             steps {
                 sh '''
-                sudo apt update -y
-                sudo apt install docker.io -y
-                sudo chmod 666 /var/run/docker.sock
+                apt update -y
+                apt install docker.io -y
+                chmod 666 /var/run/docker.sock
                 '''
             }
         }
