@@ -13,17 +13,6 @@ pipeline {
         maven 'maven-3.8.6' // Ensure maven-3.8.6 is properly configured in Jenkins
     }
 
-    stages {
-        stage('Install Docker') {
-            steps {
-                sh '''
-                apt update -y
-                apt install docker.io -y
-                chmod 666 /var/run/docker.sock
-                '''
-            }
-        }
-
         stage('Checkout git') {
             steps {
                 git branch: 'main', url: 'https://github.com/indalarajesh/CI-with-Jenkins.git'
