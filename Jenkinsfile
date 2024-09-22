@@ -108,23 +108,6 @@ pipeline {
             }
         }
 
-        stage('Install AWS CLI') {
-            steps {
-                script {
-                    // Install AWS CLI
-                    sh '''
-                        if ! command -v aws &> /dev/null; then
-                            echo "AWS CLI not found. Installing..."
-                            sudo apt-get update
-                            sudo apt-get install -y awscli
-                        else
-                            echo "AWS CLI is already installed."
-                        fi
-                    '''
-                }
-            }
-        }
-
         stage('Configure AWS CLI') {
             steps {
                 script {
