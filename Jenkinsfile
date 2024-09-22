@@ -5,7 +5,7 @@ pipeline {
         NAME = "spring-app"
         VERSION = "${env.BUILD_ID}"
         IMAGE_REPO = "indalarajesh"
-        GIT_REPO_NAME = "CI-with-Jenkins"
+        GIT_REPO_NAME = "DevOps_MasterPiece-CD-with-argocd"
         GIT_USER_NAME = "INDALARAJESH"
     }
 
