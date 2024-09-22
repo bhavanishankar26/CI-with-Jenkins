@@ -8,6 +8,8 @@ pipeline {
         GIT_REPO_NAME = "DevOps_MasterPiece-CD-with-argocd"
         GIT_USER_NAME = "INDALARAJESH"
         KUBE_CONFIG = "/path/to/kubeconfig" // Ensure the path to your kubeconfig file is correct
+        AWS_REGION = "us-west-2" // Set your AWS region
+        EKS_CLUSTER_NAME = "your-cluster-name" // Set your EKS cluster name
     }
 
     tools { 
@@ -96,13 +98,12 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
-                        // Pass the GITHUB_TOKEN directly to gh auth login
                         sh '''
                             unset GITHUB_TOKEN
                             echo "${GITHUB_TOKEN}" | gh auth login --with-token
                         '''
                         sh 'git checkout feature'
-                        sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
+                        sh "gh pr create -t 'Image tag updated' -b 'Check and merge it'"
                     }
                 }
             }
@@ -111,8 +112,10 @@ pipeline {
         stage('Configure AWS CLI') {
             steps {
                 script {
-                    withCredentials([string(credentialsId: 'aws-credentials-id', variable: 'AWS_ACCESS_KEY_ID'), 
-                                     string(credentialsId: 'aws-secret-key-id', variable: 'AWS_SECRET_ACCESS_KEY')]) {
+                    withCredentials([
+                        string(credentialsId: 'aws-access-key-id', variable: 'AWS_ACCESS_KEY_ID'), 
+                        string(credentialsId: 'aws-secret-access-key', variable: 'AWS_SECRET_ACCESS_KEY')
+                    ]) {
                         sh '''
                             aws configure set aws_access_key_id ${AWS_ACCESS_KEY_ID}
                             aws configure set aws_secret_access_key ${AWS_SECRET_ACCESS_KEY}
