@@ -70,7 +70,7 @@ pipeline {
                         }
                     } else {
                         echo 'Repo does not exist - Cloning the repo'
-                        sh 'git clone -b feature https://github.com/INDALARAJESH/CI-with-Jenkins.git'
+                        sh 'git clone -b feature https://github.com/INDALARAJESH/DevOps_MasterPiece-CD-with-argocd.git'
                     }
                 }
             }
@@ -106,4 +106,10 @@ pipeline {
                     dir("CI-with-Jenkins/yamls") {
                         sh 'echo "${GITHUB_TOKEN}" | gh auth login --with-token'
                         sh 'git checkout feature'
-                        sh "gh pr create -t 'Image tag
+                        sh "gh pr create -t 'Image tag updated' -b 'Check and merge it' -B main"
+                    }
+                }    
+            }
+        }
+    }
+}
