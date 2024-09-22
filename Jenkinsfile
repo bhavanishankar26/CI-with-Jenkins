@@ -133,6 +133,7 @@ pipeline {
 
                     // Deploy to EKS using kubectl
                     sh 'kubectl apply -f DevOps_MasterPiece-CD-with-argocd/yamls/deployment.yaml'
+                    sh 'kubectl apply -f DevOps_MasterPiece-CD-with-argocd/yamls/service.yaml'
                 }
             }
         }
