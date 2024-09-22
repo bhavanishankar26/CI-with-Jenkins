@@ -12,7 +12,7 @@ pipeline {
     tools { 
         maven 'maven-3.8.6' 
     }
-    
+
     stages {
         stage('Checkout git') {
             steps {
@@ -55,11 +55,9 @@ pipeline {
                 script {
                     if (fileExists('DevOps_MasterPiece-CD-with-argocd')) {
                         echo 'Cloned repo already exists - Pulling latest changes'
-
                         dir("DevOps_MasterPiece-CD-with-argocd") {
                             sh 'git pull'
                         }
-
                     } else {
                         echo 'Repo does not exist - Cloning the repo'
                         sh 'git clone -b feature https://github.com/indalarajesh/DevOps_MasterPiece-CD-with-argocd.git'
@@ -97,12 +95,17 @@ pipeline {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
                     dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
-                        sh 'echo "${GITHUB_TOKEN}" | gh auth login --with-token'
+                        sh '''
+                            set +u
+                            unset GITHUB_TOKEN
+                            gh auth login --with-token < token.txt
+                        '''
+                        sh 'git branch'
                         sh 'git checkout feature'
-                        sh "gh pr create -t 'Image tag updated' -b 'Check and merge it' -B main"
+                        sh "gh pr create -t 'image tag updated' -b 'check and merge it'"
                     }
                 }
             }
-        }
+        } 
     }
 }
