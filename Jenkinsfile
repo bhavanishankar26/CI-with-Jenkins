@@ -4,11 +4,11 @@ pipeline {
     environment {
         NAME = "spring-app"
         VERSION = "${env.BUILD_ID}"
-        IMAGE_REPO = "indalarajesh"
-        GIT_REPO_NAME = "DevOps_MasterPiece-CD-with-argocd"
-        GIT_USER_NAME = "INDALARAJESH"
-        AWS_REGION = "us-west-1" // Set your AWS region
-        EKS_CLUSTER_NAME = "abhi-eks-LD41Ri9k" // Set your EKS cluster name
+        IMAGE_REPO = "gadebhavani26"
+        GIT_REPO_NAME = "CD-k8s"
+        GIT_USER_NAME = "bhavanishankar26"
+        AWS_REGION = "us-east-1" // Set your AWS region
+        EKS_CLUSTER_NAME = "terraform-eks-demo" // Set your EKS cluster name
     }
 
     tools { 
@@ -18,7 +18,7 @@ pipeline {
     stages {
         stage('Checkout git') {
             steps {
-                git branch: 'main', url: 'https://github.com/indalarajesh/CI-with-Jenkins.git'
+                git branch: 'main', url: 'https://github.com/bhavanishankar26/CI-with-Jenkins.git'
             }
         }
 
@@ -55,14 +55,14 @@ pipeline {
         stage('Clone/Pull k8s deployment Repo') {
             steps {
                 script {
-                    if (fileExists('DevOps_MasterPiece-CD-with-argocd')) {
+                    if (fileExists('CD-k8s')) {
                         echo 'Cloned repo already exists - Pulling latest changes'
-                        dir("DevOps_MasterPiece-CD-with-argocd") {
+                        dir("CD-k8s") {
                             sh 'git pull'
                         }
                     } else {
                         echo 'Repo does not exist - Cloning the repo'
-                        sh 'git clone -b feature https://github.com/indalarajesh/DevOps_MasterPiece-CD-with-argocd.git'
+                        sh 'git clone -b feature https://github.com/bhavanishankar26/CD-k8s.git'
                     }
                 }
             }
@@ -70,8 +70,8 @@ pipeline {
         
         stage('Update deployment Manifest') {
             steps {
-                dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
-                    sh 'sed -i "s#indalarajesh.*#${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}#g" deployment.yaml'
+                dir("CD-k8s/yamls") {
+                    sh 'sed -i "s#bhavanishankar26.*#${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}#g" deployment.yaml'
                     sh 'cat deployment.yaml'
                 }
             }
@@ -80,9 +80,9 @@ pipeline {
         stage('Commit & Push changes to feature branch') {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
-                    dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
-                        sh "git config --global user.email 'rajeshindala1997@gmail.com'"
-                        sh "git config --global user.name 'INDALARAJESH'"
+                    dir("CD-k8s/yamls") {
+                        sh "git config --global user.email 'gadebhavani26@gmail.com'"
+                        sh "git config --global user.name 'gadebhavani26'"
                         sh 'git remote set-url origin https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}'
                         sh 'git checkout feature'
                         sh 'git add deployment.yaml'
@@ -96,7 +96,7 @@ pipeline {
         stage('Raise PR') {
             steps {
                 withCredentials([string(credentialsId: 'GITHUB_TOKEN', variable: 'GITHUB_TOKEN')]) {
-                    dir("DevOps_MasterPiece-CD-with-argocd/yamls") {
+                    dir("CD-k8s/yamls") {
                         sh '''
                             unset GITHUB_TOKEN
                             echo "${GITHUB_TOKEN}" | gh auth login --with-token
@@ -132,8 +132,8 @@ pipeline {
                     sh "aws eks --region ${AWS_REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME}"
 
                     // Deploy to EKS using kubectl
-                    sh 'kubectl apply -f DevOps_MasterPiece-CD-with-argocd/yamls/deployment.yaml'
-                    sh 'kubectl apply -f DevOps_MasterPiece-CD-with-argocd/yamls/service.yaml'
+                    sh 'kubectl apply -f CD-k8s/yamls/deployment.yaml'
+                    sh 'kubectl apply -f CD-k8s/yamls/service.yaml'
                 }
             }
         }
