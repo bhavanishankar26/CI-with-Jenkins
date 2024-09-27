@@ -132,8 +132,8 @@ pipeline {
                     sh "aws eks --region ${AWS_REGION} update-kubeconfig --name ${EKS_CLUSTER_NAME}"
 
                     // Deploy to EKS using kubectl
-                    sh 'kubectl apply -f CD-k8s/yamls/deployment.yaml'
-                    sh 'kubectl apply -f CD-k8s/yamls/service.yaml'
+                    sh 'kubectl apply -f CD-k8s/yamls/deployment.yaml --validate=false'
+                    sh 'kubectl apply -f CD-k8s/yamls/service.yaml --validate=false'
                 }
             }
         }
