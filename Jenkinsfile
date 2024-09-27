@@ -62,7 +62,7 @@ pipeline {
                         }
                     } else {
                         echo 'Repo does not exist - Cloning the repo'
-                        sh 'git clone -b main https://github.com/bhavanishankar26/CD-k8s.git'
+                        sh 'git clone -b feature https://github.com/bhavanishankar26/CD-k8s.git'
                     }
                 }
             }
@@ -71,7 +71,7 @@ pipeline {
         stage('Update deployment Manifest') {
             steps {
                 dir("CD-k8s/yamls") {
-                    sh 'sed -i "s#bhavanishankar26.*#${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}#g" deployment.yaml'
+                    sh 'sed -i "s#\\(image: \\).*#\\1${IMAGE_REPO}/${NAME}:${VERSION}-${GIT_COMMIT}#g" deployment.yaml'
                     sh 'cat deployment.yaml'
                 }
             }
